@@ -1,0 +1,356 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% block title %}
+Home Page
+{% endblock  %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Home Page</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <style>
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  overflow: hidden;
+  position: relative;
+  color: #fff;
+}
+
+
+video.bg-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  z-index: -1;
+  background: black;
+  filter: brightness(0.8);
+  opacity: 0.8;
+}
+
+#particles-js {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+}
+
+.navbar {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.hero {
+  height: 90vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  padding: 0 5vw;
+  z-index: 1;
+}
+
+.hero h1 {
+  font-size: 3.2rem;
+  margin-bottom: 20px;
+  animation: fadeInDown 1s ease-in-out;
+}
+
+.hero p {
+  font-size: 1.25rem;
+  animation: fadeInUp 1s ease-in-out;
+}
+
+.hero-buttons a {
+  margin: 10px;
+  padding: 14px 35px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 1rem;
+  color: white;
+  text-decoration: none;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  background-size: 200% auto;
+  box-shadow: 0 0 10px rgba(167, 119, 227, 0.4);
+  transition: all 0.4s ease;
+  display: inline-block;
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+.hero-buttons a:hover {
+  background-position: right center;
+  color: #fff;
+  box-shadow: 0 0 20px rgba(167, 119, 227, 0.8), 0 0 40px rgba(110, 142, 251, 0.6);
+  transform: scale(1.05);
+}
+
+footer {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  text-align: center;
+  padding: 2px;
+  font-size: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-50px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(50px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 10px rgba(167, 119, 227, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(167, 119, 227, 0.8); }
+  100% { box-shadow: 0 0 10px rgba(167, 119, 227, 0.3); }
+}
+
+
+@media (max-width: 992px) {
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+
+  .hero p {
+    font-size: 1.1rem;
+  }
+
+  .hero-buttons a {
+    padding: 12px 28px;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 0 10vw;
+  }
+
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  .hero p {
+    font-size: 1rem;
+  }
+
+  .hero-buttons a {
+    padding: 10px 25px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero h1 {
+    font-size: 1.6rem;
+  }
+
+  .hero p {
+    font-size: 0.9rem;
+  }
+
+  .hero-buttons a {
+    padding: 8px 20px;
+    font-size: 0.85rem;
+    display: block;
+    width: 80%;
+    margin: 8px auto;
+
+  /* 🔮 Lexi Button Styling */
+  .lexi-btn {
+    margin: 10px;
+    padding: 14px 40px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #fff !important;
+    text-decoration: none;
+    background: linear-gradient(135deg, #ff6ec7, #6e8efb, #00f2fe);
+    background-size: 300% auto;
+    box-shadow: 0 0 20px rgba(110, 142, 251, 0.6), 0 0 40px rgba(255, 110, 199, 0.6);
+    transition: all 0.4s ease;
+    display: inline-block;
+    animation: pulseGlow 2.5s ease-in-out infinite;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .lexi-btn:hover {
+    background-position: right center;
+    transform: scale(1.08);
+    box-shadow: 0 0 25px rgba(255, 110, 199, 0.8),
+                0 0 50px rgba(110, 142, 251, 0.7),
+                0 0 70px rgba(0, 242, 254, 0.6);
+  }
+
+  /* Fancy glowing animation */
+  @keyframes pulseGlow {
+    0% { box-shadow: 0 0 15px rgba(255, 110, 199, 0.5); }
+    50% { box-shadow: 0 0 35px rgba(110, 142, 251, 0.8); }
+    100% { box-shadow: 0 0 15px rgba(0, 242, 254, 0.5); }
+  }
+  }
+}
+
+
+  </style>
+</head>
+<body>
+
+
+  <!-- Live background video -->
+  <video class="bg-video" autoplay muted loop>
+    <source src="{% static 'videos/2.mp4' %}" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+
+  <!-- Interactive Background using particles.js -->
+  <div id="particles-js" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;"></div>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark shadow">
+    <div class="container">
+      <a class="navbar-brand fw-bold">LexiBot</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          
+          <li class="nav-item">
+            <a href="bot_chat" class="nav-link inline-icon-text">
+              <i class="fas fa-robot"></i> Lexi
+            </a>
+          </li> 
+
+          <li class="nav-item">
+            <a class="nav-link inline-icon-text" href="contact">
+              <i class="fas fa-envelope"></i> Contact
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link inline-icon-text" href="about">
+              <i class="fas fa-info-circle"></i> About
+            </a>
+          </li>
+
+          {% if user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link btn btn-danger text-white ms-2 inline-icon-text" href="{% url 'logout' %}">
+              <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <a class="nav-link btn btn-success text-white ms-2 inline-icon-text" href="{% url 'login' %}">
+              <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+          </li>
+          {% endif %}
+
+
+
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <h1>⚖️ LexiBots – Decoding the Law, One Byte at a Time</h1>
+
+    <p>☞ Team LexiBots is a legal-tech innovation group using Generative AI to simplify 
+      complex legal documents. We create plain-language summaries, conversational explanations, 
+      and audio versions of contracts, policies, and notices—making law more accessible, clear, and human-centered.</p>
+    
+    <div class="hero-buttons">
+      {% if user.is_authenticated %}
+      {% else %}
+        <a href="{% url 'login' %}" class="inline-icon-text hero-buttons">
+          <i class="fas fa-sign-in-alt"></i> Login
+        </a>
+      {% endif %}
+
+      <a href="bot_chat" class="inline-icon-text hero-buttons">
+        <i class="fas fa-robot"></i> Talk to Lexi
+      </a>
+
+      <a href="contact" class="inline-icon-text hero-buttons">
+        <i class="fas fa-envelope"></i> Contact
+      </a>
+
+      <a href="about" class="inline-icon-text hero-buttons">
+        <i class="fas fa-info-circle"></i> About
+      </a>
+    </div>
+
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    &copy; 2025 My Website. All rights reserved.
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+  <script>
+
+    
+    particlesJS("particles-js", {
+      "particles": {
+        "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
+        "color": { "value": "#ffffff" },
+        "shape": { "type": "circle" },
+        "opacity": { "value": 0.5 },
+        "size": { "value": 3, "random": true },
+        "line_linked": {
+          "enable": true,
+          "distance": 150,
+          "color": "#ffffff",
+          "opacity": 0.4,
+          "width": 1
+        },
+        "move": {
+          "enable": true,
+          "speed": 2,
+          "direction": "none",
+          "out_mode": "bounce"
+        }
+      },
+      "interactivity": {
+        "events": {
+          "onhover": { "enable": true, "mode": "repulse" },
+          "onclick": { "enable": true, "mode": "push" }
+        },
+        "modes": {
+          "repulse": { "distance": 100 },
+          "push": { "particles_nb": 4 }
+        }
+      },
+      "retina_detect": true
+    });
+  </script>
+</body>
+</html>
+
+{% endblock  %}

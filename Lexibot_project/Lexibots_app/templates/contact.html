@@ -1,0 +1,302 @@
+{% extends "layout.html" %}
+
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact Us</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow-x: hidden;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #fff;
+    }
+
+    #particles-js {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background-size: 400% 400%;
+      z-index: -1;
+    }
+
+    video.bg-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: -1;
+      background: black;
+      filter: brightness(1);
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .contact-card {
+      backdrop-filter: blur(20px);               /* keeps the blur effect for readability */
+      background: rgba(255, 255, 255, 0.15);    /* translucent white */
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 40px 35px;
+      max-width: 600px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      margin: 5% auto;
+      animation: fadeIn 1s ease-out;
+      color: #fff;                               /* ensures text stays readable */
+    }
+
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(30px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+    .form-floating input,
+    .form-floating textarea {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 15px;
+    }
+
+    .form-floating input:focus,
+    .form-floating textarea:focus {
+      box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.25);
+      color: #fff;
+    }
+
+    .form-floating label {
+      color: #ccc;
+    }
+
+    .btn-glow {
+      background-color: rgb(27, 67, 131);
+      border: none;
+      border-radius: 12px;
+      padding: 14px;
+      width: 100%;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: white;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-glow::before {
+      content: "";
+      position: absolute;
+      background: rgba(255, 255, 255, 0.3);
+      top: 0;
+      left: -75%;
+      width: 50%;
+      height: 100%;
+      transform: skewX(-20deg);
+      transition: 0.75s;
+    }
+
+    .btn-glow:hover {
+      transform: scale(1.03);
+    }
+
+    .btn-glow:hover::before {
+      left: 125%;
+    }
+
+    .footer-text {
+      font-size: 0.9rem;
+      color: #eee;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    /* Home button (top-left) */
+    .home-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 10px 20px;
+  border-radius: 30px;
+  background: linear-gradient(135deg,rgb(65, 182, 255),rgb(30, 64, 176));
+  color: white;
+  font-weight: 600;
+  text-decoration: none;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(255, 65, 108, 0.4);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.home-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 25px rgba(255, 65, 108, 0.6);
+  background: linear-gradient(135deg,rgb(83, 83, 245),rgb(28, 31, 204));
+}
+
+
+
+  </style>
+</head>
+<body>
+
+  <!-- Home Button -->
+  <a href="/" class="home-button">🏠 Home</a>
+
+  <!-- Live background video -->
+  <video class="bg-video" autoplay muted loop>
+    <source src="{% static 'videos/4.mp4' %}" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+
+  <!-- Live Background -->
+  <div id="particles-js"></div>
+
+  <div class="container">
+    <div class="contact-card">
+      <h2><i class="fas fa-paper-plane"></i> Contact Us</h2>
+      <form method="POST" action="{% url 'contact' %}">
+        {% csrf_token %}
+
+
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} mt-3" role="alert">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+
+
+        <div class="form-floating mb-3">
+          <input type="text" name="name" class="form-control" id="floatingName" placeholder="Your Name" required>
+          <label for="floatingName"><i class="fas fa-user me-2"></i>Name</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input type="email" name="email" class="form-control" id="floatingEmail" placeholder="name@example.com" required>
+          <label for="floatingEmail"><i class="fas fa-envelope me-2"></i>Email address</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input type="text" name="subject" class="form-control" id="floatingSubject" placeholder="Subject">
+          <label for="floatingSubject"><i class="fas fa-tag me-2"></i>Subject</label>
+        </div>
+        <div class="form-floating mb-4">
+          <textarea class="form-control" name="message" placeholder="Leave a message here" id="floatingMessage" style="height: 150px;" required></textarea>
+          <label for="floatingMessage"><i class="fas fa-comment-dots me-2"></i>Message</label>
+        </div>
+
+        
+        <button type="submit" class="btn btn-glow">
+          <i class="fas fa-paper-plane me-2"></i>Send Message
+        </button>
+      </form>
+      <p class="footer-text mt-4">We'll get back to you within 24 hours ✨</p>
+    </div>
+  </div>
+
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+  <script>
+
+        // Initialize Particles.js
+    particlesJS("particles-js", {
+      particles: {
+        number: {
+          value: 80,
+          density: {
+            enable: true,
+            value_area: 800
+          }
+        },
+        color: {
+          value: "#ffffff"
+        },
+        shape: {
+          type: "circle",
+          stroke: {
+            width: 0,
+            color: "#000000"
+          },
+          polygon: {
+            nb_sides: 5
+          }
+        },
+        opacity: {
+          value: 0.5,
+          random: true,
+          anim: {
+            enable: true,
+            speed: 1,
+            opacity_min: 0.1,
+            sync: false
+          }
+        },
+        size: {
+          value: 3,
+          random: true,
+          anim: {
+            enable: true,
+            speed: 40,
+            size_min: 0.1,
+            sync: false
+          }
+        },
+        line_linked: {
+          enable: true,
+          distance: 150,
+          color: "#ffffff",
+          opacity: 0.4,
+          width: 1
+        },
+        move: {
+          enable: true,
+          speed: 6,
+          direction: "none",
+          random: true,
+          straight: false,
+          out_mode: "out",
+          bounce: false,
+          attract: {
+            enable: false,
+            rotateX: 600,
+            rotateY: 1200
+          }
+        }
+      },
+      interactivity: {
+        detect_on: "window",
+        events: {
+          onhover: {
+            enable: true,
+            mode: "repulse"
+          },
+          onclick: {
+            enable: true,
+            mode: "push"
+          },
+          resize: true
+        }
+      },
+      retina_detect: true
+    });
+  </script>
+</body>
+</html>
+
+{% endblock  %}

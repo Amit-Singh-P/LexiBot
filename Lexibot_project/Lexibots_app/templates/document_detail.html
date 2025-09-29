@@ -1,0 +1,480 @@
+{% extends 'base.html' %}
+{% block title %}{{ document.title }} - Document Details{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Custom scrollbar for dark theme */
+    .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #1f2937; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+
+    /* Enhanced tech background with moving grid */
+    .tech-bg {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+    }
+    
+    .tech-bg::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 200%;
+        height: 200%;
+        background-image: 
+            linear-gradient(rgba(0, 255, 255, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 255, 255, 0.05) 1px, transparent 1px);
+        background-size: 30px 30px;
+        z-index: 1;
+        animation: tech-grid-move 30s linear infinite;
+    }
+    
+    @keyframes tech-grid-move {
+        0% { transform: translate(0, 0); }
+        100% { transform: translate(30px, 30px); }
+    }
+
+    /* Holographic text effect */
+    .holo-text {
+        background: linear-gradient(45deg, 
+            #00ffff 0%, 
+            #3b82f6 25%, 
+            #00ffff 50%, 
+            #3b82f6 75%, 
+            #00ffff 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: holo-shimmer 3s ease-in-out infinite;
+    }
+    
+    @keyframes holo-shimmer {
+        0%, 100% { filter: hue-rotate(0deg); }
+        50% { filter: hue-rotate(180deg); }
+    }
+
+    /* Floating particles background */
+    .particles-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+    }
+    
+    .particle {
+        position: absolute;
+        background: rgba(0, 255, 255, 0.6);
+        border-radius: 50%;
+        animation: float-particle linear infinite;
+    }
+    
+    @keyframes float-particle {
+        0% {
+            transform: translateY(100vh) scale(0);
+            opacity: 0;
+        }
+        10% {
+            opacity: 1;
+        }
+        90% {
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(-100px) scale(1);
+            opacity: 0;
+        }
+    }
+
+    /* Hexagonal container effect */
+    .hex-container {
+        position: relative;
+        background: linear-gradient(135deg, 
+            rgba(0, 255, 255, 0.1) 0%, 
+            transparent 50%, 
+            rgba(0, 255, 255, 0.1) 100%);
+        border: 1px solid rgba(0, 255, 255, 0.3);
+    }
+    
+    .hex-container::before {
+        content: '';
+        position: absolute;
+        top: -1px;
+        left: -1px;
+        right: -1px;
+        bottom: -1px;
+        background: linear-gradient(45deg, 
+            rgba(0, 255, 255, 0.2), 
+            transparent, 
+            rgba(0, 255, 255, 0.2));
+        z-index: -1;
+        border-radius: inherit;
+    }
+
+    /* Pulsing glow animation */
+    .pulse-glow {
+        animation: pulse-glow 2s ease-in-out infinite alternate;
+    }
+    
+    @keyframes pulse-glow {
+        from {
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+        to {
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+        }
+    }
+
+    /* Floating action icons */
+    .floating-icon {
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .floating-icon:hover {
+        transform: translateY(-2px);
+        filter: drop-shadow(0 4px 8px rgba(0, 255, 255, 0.4));
+    }
+
+    /* Text selection highlighting */
+    ::selection {
+        background: rgba(0, 255, 255, 0.3);
+        color: white;
+    }
+
+    /* Code blocks in extracted text */
+    .extracted-text pre {
+        background: rgba(30, 41, 59, 0.8);
+        border: 1px solid rgba(0, 255, 255, 0.2);
+        padding: 1rem;
+        border-radius: 8px;
+        overflow-x: auto;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen tech-bg">
+    <!-- Floating Particles Background -->
+    <div class="particles-bg" id="particles-container"></div>
+
+    <div class="container mx-auto px-6 py-8 relative z-10">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center space-x-4">
+                <a href="{% url 'document_list' %}" class="p-2 rounded-lg hover:bg-gray-700 text-gray-400 hover:text-cyber-cyan floating-icon">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </a>
+                <div>
+                    <h1 class="text-3xl font-heading font-bold text-white">Document <span class="holo-text">Details</span></h1>
+                    <p class="text-gray-400">{{ document.title }}</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <a href="{% url 'bot_chat' %}?doc={{ document.id }}" 
+                   class="bg-accent-blue text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors pulse-glow floating-icon">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                    </svg>
+                    Analyze with AI
+                </a>
+                <button onclick="deleteDocument()" class="bg-red-600/20 text-red-400 px-4 py-2 rounded-lg hover:bg-red-600/40 transition-colors floating-icon">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                    Delete
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Document Information -->
+            <div class="lg:col-span-1">
+                <div class="hex-container rounded-lg p-6 mb-6">
+                    <h2 class="text-xl font-heading font-bold text-white mb-4">Document <span class="holo-text">Information</span></h2>
+                    
+                    <!-- File Icon and Type -->
+                    <div class="flex items-center space-x-4 mb-6">
+                        <div class="p-4 rounded-lg bg-accent-blue/20 pulse-glow">
+                            {% if document.mime_type == 'application/pdf' %}
+                                <svg class="w-12 h-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                </svg>
+                            {% elif 'image' in document.mime_type %}
+                                <svg class="w-12 h-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                            {% else %}
+                                <svg class="w-12 h-12 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-white">{{ document.title }}</h3>
+                            <p class="text-gray-400">{{ document.get_document_type_display }}</p>
+                        </div>
+                    </div>
+
+                    <!-- File Details -->
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center py-2 border-b border-gray-700">
+                            <span class="text-gray-400">Original Name</span>
+                            <span class="text-white text-sm">{{ document.original_filename }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-gray-700">
+                            <span class="text-gray-400">File Size</span>
+                            <span class="text-white">{{ document.file_size|filesizeformat }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-gray-700">
+                            <span class="text-gray-400">File Type</span>
+                            <span class="text-white">{{ document.mime_type }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-gray-700">
+                            <span class="text-gray-400">Uploaded</span>
+                            <span class="text-white">{{ document.uploaded_at|date:"M d, Y H:i" }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2">
+                            <span class="text-gray-400">Status</span>
+                            {% if document.processed %}
+                                <span class="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">✓ Processed</span>
+                            {% elif document.processing_error %}
+                                <span class="px-2 py-1 bg-red-500/20 text-red-400 text-xs rounded-full">✗ Error</span>
+                            {% else %}
+                                <span class="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs rounded-full">⏳ Processing</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="mt-6 space-y-3">
+                        <a href="{{ document.file.url }}" target="_blank" 
+                           class="w-full bg-gray-700/50 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors floating-icon flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            View Original File
+                        </a>
+                        <button onclick="downloadDocument()" 
+                                class="w-full bg-gray-700/50 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors floating-icon flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            Download
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Processing Status -->
+                {% if document.processing_error %}
+                <div class="hex-container rounded-lg p-6 border-red-500/30">
+                    <h3 class="text-lg font-semibold text-red-400 mb-3">Processing Error</h3>
+                    <p class="text-gray-300 text-sm bg-red-900/20 p-3 rounded">{{ document.processing_error }}</p>
+                    <button onclick="reprocessDocument()" 
+                            class="mt-4 bg-red-600/20 text-red-400 px-4 py-2 rounded-lg hover:bg-red-600/40 transition-colors floating-icon">
+                        Retry Processing
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Document Content -->
+            <div class="lg:col-span-2">
+                {% if document.extracted_text %}
+                <div class="hex-container rounded-lg p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-heading font-bold text-white">Extracted <span class="holo-text">Text</span></h2>
+                        <div class="flex space-x-2">
+                            <button onclick="copyText()" class="bg-gray-700/50 text-gray-300 px-3 py-2 rounded-lg hover:bg-gray-600 transition-colors floating-icon text-sm">
+                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                </svg>
+                                Copy
+                            </button>
+                            <button onclick="speakText()" class="bg-gray-700/50 text-gray-300 px-3 py-2 rounded-lg hover:bg-gray-600 transition-colors floating-icon text-sm">
+                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728"/>
+                                </svg>
+                                Listen
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="extracted-text bg-gray-900/50 p-6 rounded-lg border border-gray-700 custom-scrollbar max-h-96 overflow-y-auto">
+                        <pre class="whitespace-pre-wrap text-gray-300 leading-relaxed" id="extracted-text-content">{{ document.extracted_text }}</pre>
+                    </div>
+                    
+                    <!-- Text Statistics -->
+                    <div class="mt-6 grid grid-cols-3 gap-4">
+                        <div class="text-center">
+                            <p class="text-2xl font-bold text-white" id="word-count">0</p>
+                            <p class="text-gray-400 text-sm">Words</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-2xl font-bold text-white" id="char-count">0</p>
+                            <p class="text-gray-400 text-sm">Characters</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-2xl font-bold text-white" id="line-count">0</p>
+                            <p class="text-gray-400 text-sm">Lines</p>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="hex-container rounded-lg p-6 text-center">
+                    {% if document.processed %}
+                        <div class="w-16 h-16 bg-gray-700/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-300 mb-2">No Text Content</h3>
+                        <p class="text-gray-500">This document doesn't contain extractable text content.</p>
+                    {% else %}
+                        <div class="w-16 h-16 bg-accent-blue/20 rounded-full flex items-center justify-center mx-auto mb-4 pulse-glow">
+                            <svg class="w-8 h-8 text-accent-blue animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-300 mb-2">Processing Document</h3>
+                        <p class="text-gray-500">Please wait while we extract text from your document...</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Particle system
+    function createParticle() {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        const size = Math.random() * 3 + 1;
+        particle.style.width = size + 'px';
+        particle.style.height = size + 'px';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDuration = (Math.random() * 10 + 5) + 's';
+        particle.style.animationDelay = Math.random() * 2 + 's';
+        
+        document.getElementById('particles-container').appendChild(particle);
+        
+        setTimeout(() => {
+            particle.remove();
+        }, 15000);
+    }
+    
+    setInterval(createParticle, 300);
+    for (let i = 0; i < 20; i++) {
+        setTimeout(() => createParticle(), i * 100);
+    }
+
+    // Calculate text statistics
+    function calculateStats() {
+        const text = document.getElementById('extracted-text-content')?.textContent || '';
+        const words = text.trim().split(/\s+/).filter(word => word.length > 0).length;
+        const chars = text.length;
+        const lines = text.split('\n').length;
+        
+        document.getElementById('word-count').textContent = words.toLocaleString();
+        document.getElementById('char-count').textContent = chars.toLocaleString();
+        document.getElementById('line-count').textContent = lines.toLocaleString();
+    }
+
+    // Copy text functionality
+    function copyText() {
+        const text = document.getElementById('extracted-text-content')?.textContent;
+        if (text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('Text copied to clipboard!', 'success');
+            }).catch(() => {
+                showNotification('Failed to copy text', 'error');
+            });
+        }
+    }
+
+    // Text-to-speech functionality
+    function speakText() {
+        const text = document.getElementById('extracted-text-content')?.textContent;
+        if (text && 'speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.8;
+            utterance.pitch = 1;
+            speechSynthesis.speak(utterance);
+            showNotification('Playing audio...', 'info');
+        } else {
+            showNotification('Text-to-speech not supported', 'error');
+        }
+    }
+
+    // Delete document
+    function deleteDocument() {
+        if (confirm('Are you sure you want to delete this document? This action cannot be undone.')) {
+            fetch('{% url "delete_document" document.id %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = '{% url "document_list" %}';
+                } else {
+                    showNotification('Failed to delete document', 'error');
+                }
+            });
+        }
+    }
+
+    // Download document
+    function downloadDocument() {
+        window.open('{{ document.file.url }}', '_blank');
+    }
+
+    // Reprocess document
+    function reprocessDocument() {
+        showNotification('Reprocessing document...', 'info');
+        // In a real implementation, you'd make an API call to reprocess
+        setTimeout(() => {
+            location.reload();
+        }, 2000);
+    }
+
+    // Notification system
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 px-4 py-2 rounded-lg text-white z-50 ${
+            type === 'success' ? 'bg-green-600' :
+            type === 'error' ? 'bg-red-600' :
+            'bg-blue-600'
+        }`;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
+    }
+
+    // Enhanced hover effects
+    document.querySelectorAll('.floating-icon').forEach(icon => {
+        icon.addEventListener('mouseenter', () => {
+            icon.style.filter = 'drop-shadow(0 4px 12px rgba(0, 255, 255, 0.6))';
+        });
+        icon.addEventListener('mouseleave', () => {
+            icon.style.filter = 'none';
+        });
+    });
+
+    // Initialize stats calculation
+    document.addEventListener('DOMContentLoaded', calculateStats);
+</script>
+{% endblock %}

@@ -1,0 +1,36 @@
+# Core
+Django>=4.2,<5.0
+python-dotenv>=1.0.1
+psycopg2-binary>=2.9.9   # PostgreSQL driver
+dj-database-url>=2.2.0   # Parse DATABASE_URL
+
+# Django REST Framework
+djangorestframework>=3.15.2
+drf-spectacular>=0.27.2
+
+# File Handling
+Pillow>=10.4.0           # Image processing
+python-docx>=1.1.2       # DOCX support
+PyPDF2>=3.0.1            # PDF support
+pytesseract>=0.3.13      # OCR bridge
+pdfplumber>=0.11.4       # Extract structured text from PDFs
+
+# Caching / Session
+django-redis>=5.4.0
+
+# Security & Validation
+django-environ>=0.11.2
+bleach>=6.1.0            # Input sanitization
+
+# Logging & Monitoring
+sentry-sdk[django]>=2.13.0
+
+# Development Utilities
+django-debug-toolbar>=4.4.6
+bandit>=1.7.10           # Security linting
+safety>=3.2.9            # Vulnerability checks
+coverage>=7.6.1
+
+# Deployment
+gunicorn>=23.0.0
+whitenoise>=6.8.2        # Static files in production

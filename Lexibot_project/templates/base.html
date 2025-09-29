@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LexiBots - AI Legal Assistant{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+
+    {% block extra_css %}
+    <style>
+        /* Notification container */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px; /* spacing between notifications */
+            z-index: 9999;
+        }
+
+        /* Individual notification */
+        .notification {
+            padding: 12px 20px;
+            border-radius: 8px;
+            background-color: #1f2937; /* default bg */
+            color: #f9fafb;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            animation: slide-in 0.3s ease-out;
+        }
+
+        /* Add styling for different message tags if needed */
+        .notification.success { background-color: #16a34a; }
+        .notification.error { background-color: #dc2626; }
+        .notification.info  { background-color: #2563eb; }
+        .notification.warning { background-color: #f59e0b; }
+
+        @keyframes slide-in {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+    {% endblock %}
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'navy-dark': '#0d1117',
+                        'charcoal': '#161b22',
+                        'accent-blue': '#3b82f6',
+                        'accent-gold': '#f59e0b',
+                        'cyber-cyan': '#00ffff',
+                    },
+                    fontFamily: {
+                        heading: ['Merriweather', 'serif'],
+                        body: ['Open Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="{% block body_class %}bg-navy-dark text-gray-200 font-body{% endblock %}">
+    
+    {% if messages %}
+    <div class="notification-container">
+        {% for message in messages %}
+            <div class="notification {{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% block content %}
+    {% endblock %}
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

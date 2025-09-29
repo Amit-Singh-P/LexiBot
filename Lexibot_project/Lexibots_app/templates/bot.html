@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LexiBots - AI Legal Assistant</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- Custom Styles and Tailwind Config -->
+    <style>
+        /* Custom scrollbar for dark theme */
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1f2937; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+
+        /* Tooltip for icon actions */
+        [data-tooltip] { position: relative; }
+        [data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #0369a1;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            margin-bottom: 8px;
+            opacity: 1;
+            transition: opacity 0.2s;
+            z-index: 50;
+        }
+
+        /* Enhanced Bot bubble with holographic wireframe effect */
+        .bot-glow {
+            box-shadow: 
+                0 0 25px rgba(0, 255, 255, 0.4), 
+                0 0 15px rgba(59, 130, 246, 0.3),
+                inset 0 0 15px rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.6);
+            background: linear-gradient(135deg, 
+                rgba(22, 27, 34, 0.95) 0%, 
+                rgba(22, 27, 34, 0.8) 50%, 
+                rgba(0, 255, 255, 0.05) 100%);
+            position: relative;
+        }
+        
+        /* Wireframe grid overlay for bot messages */
+        .wireframe-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 10px 10px;
+            border-radius: inherit;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        /* Floating particles background */
+        .particles-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .particle {
+            position: absolute;
+            background: rgba(0, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: float-particle linear infinite;
+        }
+        
+        @keyframes float-particle {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* HUD Circular elements */
+        .hud-circle {
+            position: absolute;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: rotate-hud 20s linear infinite;
+        }
+        
+        .hud-circle::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border: 1px solid rgba(0, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: rgba(0, 255, 255, 0.8);
+            animation: rotate-hud-inner 15s linear infinite reverse;
+        }
+        
+        @keyframes rotate-hud {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes rotate-hud-inner {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Pulsing glow animation */
+        .pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes pulse-glow {
+            from {
+                box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+            }
+            to {
+                box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+            }
+        }
+
+        /* Enhanced tech background with moving grid */
+        .tech-bg {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+        }
+        
+        .tech-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 200%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: 1;
+            animation: tech-grid-move 30s linear infinite;
+        }
+        
+        @keyframes tech-grid-move {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(30px, 30px); }
+        }
+
+        /* Holographic text effect */
+        .holo-text {
+            background: linear-gradient(45deg, 
+                #00ffff 0%, 
+                #3b82f6 25%, 
+                #00ffff 50%, 
+                #3b82f6 75%, 
+                #00ffff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: holo-shimmer 3s ease-in-out infinite;
+        }
+        
+        @keyframes holo-shimmer {
+            0%, 100% { filter: hue-rotate(0deg); }
+            50% { filter: hue-rotate(180deg); }
+        }
+
+        /* Loading spinner with HUD design */
+        .hud-loader {
+            width: 40px;
+            height: 40px;
+            border: 2px solid rgba(0, 255, 255, 0.1);
+            border-top: 2px solid #00ffff;
+            border-radius: 50%;
+            animation: hud-spin 1s linear infinite;
+            position: relative;
+        }
+        
+        .hud-loader::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            right: 2px;
+            bottom: 2px;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 50%;
+            border-right-color: transparent;
+            animation: hud-spin 2s linear infinite reverse;
+        }
+        
+        @keyframes hud-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Fade-in animation for chat bubbles */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        /* Glowing border animation for inputs */
+        .glow-border {
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .glow-border:focus {
+            border-color: rgba(0, 255, 255, 0.8);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+            outline: none;
+        }
+
+        /* Floating action icons */
+        .floating-icon {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .floating-icon:hover {
+            transform: translateY(-2px);
+            filter: drop-shadow(0 4px 8px rgba(0, 255, 255, 0.4));
+        }
+
+        /* Hexagonal container effect */
+        .hex-container {
+            position: relative;
+            background: linear-gradient(135deg, 
+                rgba(0, 255, 255, 0.1) 0%, 
+                transparent 50%, 
+                rgba(0, 255, 255, 0.1) 100%);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+        
+        .hex-container::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            background: linear-gradient(45deg, 
+                rgba(0, 255, 255, 0.2), 
+                transparent, 
+                rgba(0, 255, 255, 0.2));
+            z-index: -1;
+            border-radius: inherit;
+        }
+        
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background: linear-gradient(135deg, #059669, #10b981);
+        }
+        
+        .notification.error {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+        }
+        
+        .notification.info {
+            background: linear-gradient(135deg, #0369a1, #3b82f6);
+        }
+
+        /* Voice recording indicator */
+        .voice-recording {
+            animation: voice-pulse 1s ease-in-out infinite;
+            background-color: #ef4444 !important;
+        }
+        
+        @keyframes voice-pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Navigation bar styling for horizontal layout */
+        .nav-bar {
+            width: 320px; /* Reduced width for more compact layout */
+            min-width: 320px;
+        }
+
+        .nav-buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            width: 100%;
+            margin-bottom: 16px;
+        }
+
+        .bottom-nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 6px;
+            width: 100%;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'navy-dark': '#0d1117',
+                        'charcoal': '#161b22',
+                        'accent-blue': '#3b82f6',
+                        'accent-gold': '#f59e0b',
+                        'cyber-cyan': '#00ffff',
+                    },
+                    fontFamily: {
+                        heading: ['Merriweather', 'serif'],
+                        body: ['Open Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-navy-dark text-gray-200 font-body flex h-screen overflow-hidden">
+
+    <!-- Floating Particles Background -->
+    <div class="particles-bg" id="particles-container"></div>
+
+    <!-- HUD Circle Elements -->
+    <div class="hud-circle" style="width: 200px; height: 200px; top: 10%; left: 80%; opacity: 0.3;"></div>
+    <div class="hud-circle" style="width: 150px; height: 150px; top: 60%; left: 85%; opacity: 0.2;"></div>
+    <div class="hud-circle" style="width: 100px; height: 100px; top: 80%; left: 10%; opacity: 0.25;"></div>
+
+    <!-- Left Sidebar: AI Legal Icons + Document Upload -->
+    <aside id="sidebar" class="flex h-full fixed inset-y-0 left-0 z-40 w-full md:w-auto md:relative md:translate-x-0 transform -translate-x-full transition-transform duration-300 ease-in-out">
+        <!-- Navigation Bar with Horizontal Buttons -->
+        <div class="bg-navy-dark border-r border-gray-700 p-4 flex flex-col justify-between hex-container nav-bar">
+            <!-- AI Avatar and Navigation Section -->
+            <div class="space-y-6">
+                <!-- AI Avatar with pulsing glow -->
+                <div class="flex justify-center">
+                    <div class="w-12 h-12 bg-accent-blue rounded-lg flex items-center justify-center text-white shadow-lg pulse-glow">
+                        <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="1.5"><path d="M12 11.5C13.3807 11.5 14.5 10.3807 14.5 9C14.5 7.61929 13.3807 6.5 12 6.5C10.6193 6.5 9.5 7.61929 9.5 9C9.5 10.3807 10.6193 11.5 12 11.5Z" stroke-width="1.5"/><path d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2Z" stroke-width="1.5"/><path d="M18.5 18.5C18.5 16.0147 15.5817 14 12 14C8.41828 14 5.5 16.0147 5.5 18.5" stroke-width="1.5"/></svg>
+                    </div>
+                </div>
+                
+                <!-- Main Navigation Buttons - 3x2 Grid -->
+                <div class="nav-buttons-grid">
+                    <a href="{% url 'document_list' %}" class="flex flex-col items-center p-3 rounded-lg hover:bg-charcoal text-gray-400 hover:text-cyber-cyan floating-icon transition-colors" data-tooltip="Legal Documents">
+                        <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <span class="text-xs text-center">Documents</span>
+                    </a>
+                    
+                    <a href="{% url 'chat_history' %}" class="flex flex-col items-center p-3 rounded-lg hover:bg-charcoal text-gray-400 hover:text-cyber-cyan floating-icon transition-colors" data-tooltip="Chat History">
+                        <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span class="text-xs text-center">History</span>
+                    </a>
+                    
+                    <button onclick="openSearchModal()" class="flex flex-col items-center p-3 rounded-lg hover:bg-charcoal text-gray-400 hover:text-cyber-cyan floating-icon transition-colors" data-tooltip="Search">
+                        <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        <span class="text-xs text-center">Search</span>
+                    </button>
+                    
+                    <button onclick="showAICapabilities()" class="flex flex-col items-center p-3 rounded-lg hover:bg-charcoal text-gray-400 hover:text-cyber-cyan floating-icon transition-colors" data-tooltip="AI Brain">
+                        <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                        <span class="text-xs text-center">AI Brain</span>
+                    </button>
+                    
+                    <button onclick="showLegalResources()" class="flex flex-col items-center p-3 rounded-lg hover:bg-charcoal text-gray-400 hover:text-cyber-cyan floating-icon transition-colors" data-tooltip="Legal Resources">
+                        <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                        <span class="text-xs text-center">Resources</span>
+                    </button>
+                    
+                    <button onclick="showSecurityInfo()" class="flex flex-col items-center p-3 rounded-lg hover:bg-charcoal text-gray-400 hover:text-cyber-cyan floating-icon transition-colors" data-tooltip="Security">
+                        <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 20.417l5.318-3.40A12.02 12.02 0 0012 17.944a11.955 11.955 0 018.618-3.04A12.02 12.02 0 0021 4.983z"></path></svg>
+                        <span class="text-xs text-center">Security</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Bottom buttons - Horizontal -->
+            <div class="bottom-nav-buttons">
+                <a href="{% url 'user_settings' %}" class="flex flex-col items-center p-3 rounded-lg hover:bg-charcoal text-gray-400 hover:text-accent-gold floating-icon transition-colors flex-1" data-tooltip="Settings">
+                    <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <span class="text-xs text-center">Settings</span>
+                </a>
+                
+                <a href="{% url 'home' %}" class="flex flex-col items-center p-3 rounded-lg hover:bg-charcoal text-gray-400 hover:text-accent-gold floating-icon transition-colors flex-1" data-tooltip="Home">
+                    <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    <span class="text-xs text-center">Home</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Document Upload & Preview Section -->
+        <div id="document-sidebar" class="w-80 bg-charcoal p-4 flex flex-col h-full hex-container">
+            <h2 class="font-heading text-lg mb-4 holo-text">Legal Document</h2>
+            <div id="upload-section" class="flex-grow">
+                <div id="drop-zone" class="border-2 border-dashed border-cyber-cyan/40 rounded-lg h-full flex flex-col items-center justify-center text-center p-4 glow-border hover:border-cyber-cyan/60 transition-all duration-300">
+                    <svg class="w-16 h-16 text-cyber-cyan mb-4 pulse-glow" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                    <p class="text-gray-400">Drag & Drop file here</p>
+                    <p class="text-xs text-gray-500 mt-1">PDF, JPG, PNG, DOC, DOCX (Max: 10MB)</p>
+                    <span class="text-gray-500 my-4">or</span>
+                    <label for="file-upload" class="cursor-pointer bg-accent-blue text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors pulse-glow">
+                        Browse File
+                    </label>
+                    <input id="file-upload" type="file" class="hidden" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                </div>
+            </div>
+            <div id="preview-section" class="hidden flex-grow flex flex-col">
+                <p class="text-sm text-gray-400 mb-2">Uploaded Document:</p>
+                <div class="bg-navy-dark p-3 rounded-lg flex items-center space-x-3 border border-cyber-cyan/30 hex-container">
+                    <svg id="file-icon" class="w-8 h-8 text-cyber-cyan flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                    <span id="file-name" class="truncate text-white">document_name.pdf</span>
+                </div>
+                <button id="remove-file" class="mt-4 w-full bg-red-600/20 text-red-400 py-2 rounded-md text-sm hover:bg-red-600/40 transition-colors floating-icon">Remove File</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Chat Interface -->
+    <main class="flex-1 flex flex-col bg-charcoal h-full relative z-10">
+        <!-- Header -->
+        <header class="flex items-center justify-between p-3 border-b border-gray-700 bg-charcoal/80 backdrop-blur-sm hex-container">
+            <div class="flex items-center space-x-3">
+                <!-- Mobile Menu Toggle -->
+                <button id="menu-toggle" class="md:hidden p-1 rounded-md text-gray-400 hover:text-white floating-icon">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                </button>
+                <div class="w-10 h-10 rounded-full flex items-center justify-center bg-navy-dark pulse-glow">
+                    <img src="https://i.imgur.com/g3c5jA5.png" alt="LexiBots AI Judge Avatar" class="w-9 h-9 object-contain"/>
+                </div>
+                <div>
+                    <h1 class="font-heading text-lg font-bold text-white">LexiBots <span class="holo-text">AI Legal Assistant</span></h1>
+                    <p class="text-xs text-green-400 flex items-center"><span class="w-2 h-2 bg-green-400 rounded-full mr-1.5 pulse-glow"></span>Online</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <select id="language-select" class="bg-charcoal border border-gray-600 rounded-md py-1 pl-3 pr-8 text-sm appearance-none glow-border">
+                        <option value="en">English</option>
+                        <option value="hi">हिन्दी</option>
+                        <option value="mr">मराठी</option>
+                        <option value="es">Español</option>
+                        <option value="fr">Français</option>
+                        <option value="de">Deutsch</option>
+                    </select>
+                    <svg class="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+                <button onclick="showHowItWorks()" data-tooltip="How it works" class="floating-icon"><svg class="w-6 h-6 text-gray-400 hover:text-accent-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
+            </div>
+        </header>
+
+        <!-- Chat Window -->
+        <div id="chat-window" class="flex-1 p-6 overflow-y-auto custom-scrollbar tech-bg">
+            <div id="message-container" class="space-y-6 relative z-10">
+                <!-- Welcome Message -->
+                <div class="flex items-start gap-3 animate-fadeIn">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center bg-navy-dark flex-shrink-0 pulse-glow">
+                        <img src="https://i.imgur.com/g3c5jA5.png" alt="LexiBots Avatar" class="w-6 h-6 object-contain"/>
+                    </div>
+                    <div class="bg-gray-800 rounded-lg rounded-tl-none p-4 max-w-lg bot-glow relative">
+                        <div class="wireframe-overlay"></div>
+                        <p class="relative z-10">Welcome! Please upload a legal document or ask me any legal question. I'm here to help with contracts, agreements, legal terminology, and document analysis.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Input Bar -->
+        <footer class="p-4 border-t border-gray-700 sticky bottom-0 bg-charcoal hex-container">
+            <form id="chat-form" class="flex items-center space-x-3">
+                <label for="mobile-attach-file" class="p-2 rounded-full hover:bg-gray-700 text-gray-400 cursor-pointer floating-icon" data-tooltip="Attach Document">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                    <input type="file" id="mobile-attach-file" class="hidden" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                </label>
+                <div class="flex-1 relative">
+                    <input id="chat-input" type="text" placeholder="Type your legal question..." class="w-full bg-gray-900 border border-gray-700 rounded-full py-3 px-5 pr-14 glow-border transition-shadow" autocomplete="off">
+                    <button type="button" id="voice-btn" onclick="startVoiceInput()" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-accent-gold floating-icon transition-colors" data-tooltip="Voice Input">
+                        <svg id="mic-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                        </svg>
+                    </button>
+                </div>
+                <button type="submit" class="w-12 h-12 flex-shrink-0 bg-accent-blue text-white rounded-full flex items-center justify-center transition-transform transform active:scale-90 hover:bg-blue-500 shadow-lg shadow-blue-500/30 pulse-glow floating-icon" data-tooltip="Send">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                </button>
+            </form>
+        </footer>
+    </main>
+
+    <script>
+        // Global variables
+        let currentLanguage = 'en';
+        let isRecording = false;
+        let recognition = null;
+        let uploadedDocument = null;
+
+        // Language configurations
+        const languages = {
+            'en': { code: 'en-US', name: 'English' },
+            'hi': { code: 'hi-IN', name: 'हिन्दी' },
+            'mr': { code: 'mr-IN', name: 'मराठी' },
+            'es': { code: 'es-ES', name: 'Español' },
+            'fr': { code: 'fr-FR', name: 'Français' },
+            'de': { code: 'de-DE', name: 'Deutsch' }
+        };
+
+        // Multilingual messages
+        const messages = {
+            'en': {
+                welcome: "Welcome! Please upload a legal document or ask me any legal question. I'm here to help with contracts, agreements, legal terminology, and document analysis.",
+                listening: "Listening... Speak now",
+                voiceCaptured: "Voice input captured",
+                voiceError: "Voice recognition error. Please try again.",
+                voiceNotSupported: "Voice recognition not supported in this browser",
+                uploadSuccess: "Document uploaded successfully!",
+                uploadError: "Upload failed. Please try again.",
+                invalidFile: "Invalid file format or file too large (max 10MB)",
+                processing: "Processing...",
+                documentRemoved: "Document removed",
+                copySuccess: "Copied to clipboard!",
+                copyError: "Copy failed",
+                thanksFeedback: "Thank you for your feedback!",
+                ratingError: "Rating failed",
+                connectionError: "Connection error",
+                playingAudio: "Playing audio...",
+                ttsNotSupported: "Text-to-speech not supported"
+            },
+            'hi': {
+                welcome: "स्वागत है! कृपया एक कानूनी दस्तावेज़ अपलोड करें या मुझसे कोई कानूनी प्रश्न पूछें। मैं अनुबंध, समझौते, कानूनी शब्दावली और दस्तावेज़ विश्लेषण में मदद करने के लिए यहाँ हूँ।",
+                listening: "सुन रहा हूँ... अब बोलें",
+                voiceCaptured: "आवाज़ इनपुट कैप्चर किया गया",
+                voiceError: "आवाज़ पहचान त्रुटि। कृपया पुनः प्रयास करें।",
+                voiceNotSupported: "इस ब्राउज़र में आवाज़ पहचान समर्थित नहीं है",
+                uploadSuccess: "दस्तावेज़ सफलतापूर्वक अपलोड हुआ!",
+                uploadError: "अपलोड असफल। कृपया पुनः प्रयास करें।",
+                invalidFile: "अमान्य फ़ाइल प्रारूप या फ़ाइल बहुत बड़ी (अधिकतम 10MB)",
+                processing: "प्रसंस्करण...",
+                documentRemoved: "दस्तावेज़ हटाया गया",
+                copySuccess: "क्लिपबोर्ड पर कॉपी किया गया!",
+                copyError: "कॉपी असफल",
+                thanksFeedback: "आपके फीडबैक के लिए धन्यवाद!",
+                ratingError: "रेटिंग असफल",
+                connectionError: "कनेक्शन त्रुटि",
+                playingAudio: "ऑडियो चला रहा है...",
+                ttsNotSupported: "टेक्स्ट-टू-स्पीच समर्थित नहीं है"
+            },
+            'mr': {
+                welcome: "स्वागत आहे! कृपया एक कायदेशीर दस्तावेज अपलोड करा किंवा मला कोणताही कायदेशीर प्रश्न विचारा. मी करार, कराराच्या, कायदेशीर शब्दावली आणि दस्तावेज विश्लेषणात मदत करण्यासाठी येथे आहे.",
+                listening: "ऐकत आहे... आता बोला",
+                voiceCaptured: "आवाज इनपुट कॅप्चर केला",
+                voiceError: "आवाज ओळख त्रुटी. कृपया पुन्हा प्रयत्न करा.",
+                voiceNotSupported: "या ब्राउझरमध्ये आवाज ओळख समर्थित नाही",
+                uploadSuccess: "दस्तावेज यशस्वीरित्या अपलोड झाला!",
+                uploadError: "अपलोड अयशस्वी. कृपया पुन्हा प्रयत्न करा.",
+                invalidFile: "अवैध फाइल स्वरूप किंवा फाइल खूप मोठी (कमाल 10MB)",
+                processing: "प्रक्रिया करत आहे...",
+                documentRemoved: "दस्तावेज काढला",
+                copySuccess: "क्लिपबोर्डवर कॉपी केले!",
+                copyError: "कॉपी अयशस्वी",
+                thanksFeedback: "तुमच्या फीडबॅकसाठी धन्यवाद!",
+                ratingError: "रेटिंग अयशस्वी",
+                connectionError: "कनेक्शन त्रुटी",
+                playingAudio: "ऑडिओ वाजवत आहे...",
+                ttsNotSupported: "टेक्स्ट-टू-स्पीच समर्थित नाही"
+            }
+        };
+
+        // Get current language messages
+        function getMsg(key) {
+            return messages[currentLanguage] ? messages[currentLanguage][key] : messages['en'][key];
+        }
+
+        // Auto-detect language from browser
+        function detectLanguage() {
+            const browserLang = navigator.language || navigator.languages[0];
+            const langCode = browserLang.split('-')[0];
+            
+            if (languages[langCode]) {
+                currentLanguage = langCode;
+                document.getElementById('language-select').value = langCode;
+                updateWelcomeMessage();
+            }
+        }
+
+        // Update welcome message based on language
+        function updateWelcomeMessage() {
+            const messageContainer = document.getElementById('message-container');
+            if (messageContainer.children.length === 1) {
+                const welcomeMsg = messageContainer.querySelector('p');
+                if (welcomeMsg) {
+                    welcomeMsg.textContent = getMsg('welcome');
+                }
+            }
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.classList.add('show'), 100);
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Particle system initialization
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            
+            const size = Math.random() * 3 + 1;
+            particle.style.width = size + 'px';
+            particle.style.height = size + 'px';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDuration = (Math.random() * 10 + 5) + 's';
+            particle.style.animationDelay = Math.random() * 2 + 's';
+            
+            document.getElementById('particles-container').appendChild(particle);
+            
+            setTimeout(() => {
+                particle.remove();
+            }, 15000);
+        }
+        
+        // Create particles periodically
+        setInterval(createParticle, 300);
+        
+        // Initialize some particles immediately
+        for (let i = 0; i < 20; i++) {
+            setTimeout(() => createParticle(), i * 100);
+        }
+
+        // Navigation functions
+        function openSearchModal() {
+            // Create search modal
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-charcoal border border-cyber-cyan/30 rounded-lg p-6 max-w-md w-full mx-4 hex-container">
+                    <h3 class="text-lg font-heading holo-text mb-4">Search Documents</h3>
+                    <input type="text" id="search-input" placeholder="Enter search query..." 
+                           class="w-full bg-navy-dark border border-gray-600 rounded-md py-2 px-3 text-white glow-border mb-4">
+                    <div class="flex space-x-3">
+                        <button onclick="performSearch()" 
+                                class="flex-1 bg-accent-blue hover:bg-blue-600 text-white py-2 px-4 rounded-md transition-colors">
+                            Search
+                        </button>
+                        <button onclick="closeSearchModal()" 
+                                class="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-md transition-colors">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            document.getElementById('search-input').focus();
+            
+            // Close on backdrop click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeSearchModal();
+                }
+            });
+        }
+        
+        function closeSearchModal() {
+            const modal = document.querySelector('.fixed.inset-0.bg-black');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        function performSearch() {
+            const query = document.getElementById('search-input').value.trim();
+            if (query) {
+                showNotification(`Searching for: "${query}"`, 'info');
+                closeSearchModal();
+                // Here you would implement actual search functionality
+            } else {
+                showNotification('Please enter a search query', 'error');
+            }
+        }
+        function showHowItWorks() { showNotification('Upload a document and ask questions about its content. I can analyze contracts, agreements, and legal documents.', 'info'); }
+        function showAICapabilities() { showNotification('I can help with legal document analysis, contract interpretation, and legal terminology explanation.', 'info'); }
+        function showLegalResources() { showNotification('I provide guidance on various legal topics including contracts, intellectual property, and business law.', 'info'); }
+        function showSecurityInfo() { showNotification('Your documents are processed securely and are only accessible to you.', 'info'); }
+
+        // Enhanced voice input functionality
+        function startVoiceInput() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                showNotification(getMsg('voiceNotSupported'), 'error');
+                return;
+            }
+
+            if (isRecording) {
+                stopVoiceInput();
+                return;
+            }
+
+            try {
+                recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                recognition.lang = languages[currentLanguage].code;
+                recognition.interimResults = false;
+                recognition.maxAlternatives = 1;
+                recognition.continuous = false;
+                
+                isRecording = true;
+                document.getElementById('voice-btn').classList.add('voice-recording');
+                document.getElementById('voice-btn').setAttribute('data-tooltip', 'Stop Recording');
+                
+                recognition.start();
+                showNotification(getMsg('listening'), 'info');
+                
+                recognition.onresult = function(event) {
+                    const speechResult = event.results[0][0].transcript;
+                    document.getElementById('chat-input').value = speechResult;
+                    showNotification(getMsg('voiceCaptured'), 'success');
+                    stopVoiceInput();
+                };
+                
+                recognition.onerror = function(event) {
+                    console.error('Speech recognition error:', event.error);
+                    showNotification(getMsg('voiceError'), 'error');
+                    stopVoiceInput();
+                };
+                
+                recognition.onend = function() {
+                    stopVoiceInput();
+                };
+
+                setTimeout(() => {
+                    if (isRecording) {
+                        recognition.stop();
+                    }
+                }, 10000);
+                
+            } catch (error) {
+                console.error('Voice recognition initialization error:', error);
+                showNotification(getMsg('voiceError'), 'error');
+                stopVoiceInput();
+            }
+        }
+
+        function stopVoiceInput() {
+            if (recognition) {
+                recognition.stop();
+                recognition = null;
+            }
+            isRecording = false;
+            document.getElementById('voice-btn').classList.remove('voice-recording');
+            document.getElementById('voice-btn').setAttribute('data-tooltip', 'Voice Input');
+        }
+
+        // Enhanced file validation
+        function validateFile(file) {
+            const validTypes = [
+                'application/pdf',
+                'image/jpeg',
+                'image/png',
+                'image/jpg',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            ];
+            
+            const validExtensions = ['.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx'];
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            
+            if (!file) return { valid: false, error: 'No file selected' };
+            
+            if (file.size > maxSize) {
+                return { valid: false, error: getMsg('invalidFile') };
+            }
+            
+            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+            if (!validExtensions.includes(fileExtension) && !validTypes.includes(file.type)) {
+                return { valid: false, error: getMsg('invalidFile') };
+            }
+            
+            return { valid: true };
+        }
+
+        // Document upload functionality
+        const dropZone = document.getElementById('drop-zone');
+        const fileUpload = document.getElementById('file-upload');
+        const uploadSection = document.getElementById('upload-section');
+        const previewSection = document.getElementById('preview-section');
+        const fileNameEl = document.getElementById('file-name');
+        const removeFileBtn = document.getElementById('remove-file');
+        const chatWindow = document.getElementById('chat-window');
+        const messageContainer = document.getElementById('message-container');
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const mobileAttachFile = document.getElementById('mobile-attach-file');
+
+        // Enhanced file upload handling
+        function handleFile(file) {
+            if (!file) return;
+            
+            const validation = validateFile(file);
+            if (!validation.valid) {
+                showNotification(validation.error, 'error');
+                return;
+            }
+            
+            showNotification('Uploading document...', 'info');
+            
+            setTimeout(() => {
+                try {
+                    uploadedDocument = {
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        lastModified: file.lastModified
+                    };
+                    
+                    fileNameEl.textContent = file.name;
+                    uploadSection.classList.add('hidden');
+                    previewSection.classList.remove('hidden');
+                    
+                    const successMsg = `${getMsg('uploadSuccess')} Document "${file.name}" has been processed. What would you like to know about this document?`;
+                    appendBotMessage(successMsg);
+                    
+                    showNotification(getMsg('uploadSuccess'), 'success');
+                    
+                    if (window.innerWidth < 768) {
+                        sidebar.classList.add('-translate-x-full');
+                    }
+                } catch (error) {
+                    console.error('Upload processing error:', error);
+                    showNotification(getMsg('uploadError'), 'error');
+                }
+            }, 2000);
+        }
+
+        // Drag and drop handlers
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'rgba(0, 255, 255, 0.8)';
+            dropZone.style.backgroundColor = 'rgba(0, 255, 255, 0.05)';
+        });
+        
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'rgba(0, 255, 255, 0.4)';
+            dropZone.style.backgroundColor = 'transparent';
+        });
+        
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'rgba(0, 255, 255, 0.4)';
+            dropZone.style.backgroundColor = 'transparent';
+            handleFile(e.dataTransfer.files[0]);
+        });
+
+        // File input handlers
+        fileUpload.addEventListener('change', () => handleFile(fileUpload.files[0]));
+        mobileAttachFile.addEventListener('change', () => handleFile(mobileAttachFile.files[0]));
+        
+        // Remove file functionality
+        removeFileBtn.addEventListener('click', () => {
+            uploadedDocument = null;
+            uploadSection.classList.remove('hidden');
+            previewSection.classList.add('hidden');
+            fileUpload.value = '';
+            mobileAttachFile.value = '';
+            showNotification(getMsg('documentRemoved'), 'info');
+        });
+
+        // Mobile sidebar toggle
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // Enhanced chat functionality with language support
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            appendUserMessage(message);
+            chatInput.value = '';
+            sendMessageToBot(message);
+        });
+
+        function appendUserMessage(message) {
+            const userMessageHTML = `
+                <div class="flex justify-end animate-fadeIn">
+                    <div class="bg-accent-blue text-white rounded-lg rounded-br-none p-4 max-w-lg pulse-glow">
+                        <p>${escapeHtml(message)}</p>
+                    </div>
+                </div>`;
+            messageContainer.innerHTML += userMessageHTML;
+            scrollToBottom();
+        }
+        
+        function appendBotMessage(message, messageId = null) {
+            const botMessageHTML = `
+                <div class="flex items-start gap-3 animate-fadeIn">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center bg-navy-dark flex-shrink-0 pulse-glow">
+                        <img src="https://i.imgur.com/g3c5jA5.png" alt="LexiBots Avatar" class="w-6 h-6 object-contain"/>
+                    </div>
+                    <div class="flex-1">
+                        <div class="bg-gray-800 rounded-lg rounded-tl-none p-4 max-w-lg bot-glow relative">
+                            <div class="wireframe-overlay"></div>
+                            <p class="relative z-10">${message}</p>
+                        </div>
+                        <div class="flex items-center space-x-4 mt-2 pl-1">
+                            <button onclick="speakText(this)" data-message="${escapeHtml(message)}" class="flex items-center text-sm text-gray-400 hover:text-accent-gold floating-icon" data-tooltip="Listen">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.858 5.858a3 3 0 104.243 4.243L5.858 14.343m8.485-8.485L10.1 10.1"></path></svg>
+                                Listen
+                            </button>
+                            <button onclick="copyToClipboard(this)" data-message="${escapeHtml(message)}" class="text-sm text-gray-400 hover:text-accent-gold floating-icon" data-tooltip="Copy">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            </button>
+                            ${messageId ? `<button onclick="rateResponse('${messageId}', 5)" class="text-sm text-gray-400 hover:text-accent-gold floating-icon" data-tooltip="Helpful"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path></svg></button>` : ''}
+                        </div>
+                    </div>
+                </div>`;
+            messageContainer.innerHTML += botMessageHTML;
+            scrollToBottom();
+        }
+
+        // Mock bot response with language support
+        function sendMessageToBot(message) {
+            showBotTyping();
+            
+            setTimeout(() => {
+                document.getElementById('typing-indicator')?.remove();
+                
+                let response = generateMockResponse(message, currentLanguage);
+                
+                if (uploadedDocument) {
+                    response = addDocumentContext(response, uploadedDocument.name);
+                }
+                
+                appendBotMessage(response, 'mock-' + Date.now());
+            }, 1500 + Math.random() * 1000);
+        }
+
+        // Generate mock responses in different languages
+        function generateMockResponse(message, lang) {
+            const responses = {
+                'en': [
+                    "I understand your legal question. Based on common legal principles, here's what I can tell you: " + message.toLowerCase() + " typically involves careful consideration of relevant statutes and case law.",
+                    "That's an interesting legal matter. Legal issues like this often require analysis of the specific facts and applicable jurisdiction.",
+                    "From a legal perspective, this question touches on important principles. I'd recommend consulting with a qualified attorney for specific advice."
+                ],
+                'hi': [
+                    "मैं आपके कानूनी प्रश्न को समझता हूँ। सामान्य कानूनी सिद्धांतों के आधार पर, मैं आपको बता सकता हूँ: " + message + " में आम तौर पर संबंधित नियमों और न्यायालयी निर्णयों का सावधानीपूर्वक विचार शामिल होता है।",
+                    "यह एक दिलचस्प कानूनी मामला है। ऐसे कानूनी मुद्दों के लिए अक्सर विशिष्ट तथ्यों और लागू न्यायाधिकार के विश्लेषण की आवश्यकता होती है।",
+                    "कानूनी दृष्टिकोण से, यह प्रश्न महत्वपूर्ण सिद्धांतों को छूता है। मैं विशिष्ट सलाह के लिए एक योग्य वकील से सलाह लेने की सिफारिश करूंगा।"
+                ],
+                'mr': [
+                    "मला तुमचा कायदेशीर प्रश्न समजला आहे। सामान्य कायदेशीर तत्त्वांच्या आधारे, मी तुम्हाला सांगू शकतो: " + message + " मध्ये सामान्यत: संबंधित कायदे आणि न्यायालयीन निर्णयांचा काळजीपूर्वक विचार समाविष्ट असतो।",
+                    "हा एक मनोरंजक कायदेशीर प्रकरण आहे. अशा कायदेशीर समस्यांसाठी अनेकदा विशिष्ट तथ्ये आणि लागू अधिकारक्षेत्राचे विश्लेषण आवश्यक असते।",
+                    "कायदेशीर दृष्टिकोनातून, हा प्रश्न महत्त्वाच्या तत्त्वांना स्पर्श करतो। मी विशिष्ट सल्ल्यासाठी पात्र वकीलाशी सल्लामसलत करण्याची शिफारस करेन।"
+                ]
+            };
+            
+            const langResponses = responses[lang] || responses['en'];
+            return langResponses[Math.floor(Math.random() * langResponses.length)];
+        }
+
+        function addDocumentContext(response, documentName) {
+            const contextPhrases = {
+                'en': `Regarding your uploaded document "${documentName}", `,
+                'hi': `आपके अपलोड किए गए दस्तावेज़ "${documentName}" के संबंध में, `,
+                'mr': `तुमच्या अपलोड केलेल्या दस्तावेज "${documentName}" संदर्भात, `
+            };
+            
+            const phrase = contextPhrases[currentLanguage] || contextPhrases['en'];
+            return phrase + response;
+        }
+
+        function showBotTyping() {
+            const typingIndicatorHTML = `
+                <div id="typing-indicator" class="flex items-start gap-3 animate-fadeIn">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center bg-navy-dark flex-shrink-0 pulse-glow">
+                        <img src="https://i.imgur.com/g3c5jA5.png" alt="LexiBots Avatar" class="w-6 h-6 object-contain"/>
+                    </div>
+                    <div class="bg-gray-800 rounded-lg rounded-tl-none p-4 bot-glow relative">
+                        <div class="wireframe-overlay"></div>
+                        <div class="flex items-center space-x-2 relative z-10">
+                            <div class="hud-loader"></div>
+                            <span class="text-sm text-gray-400 holo-text">${getMsg('processing')}</span>
+                        </div>
+                    </div>
+                </div>`;
+            messageContainer.innerHTML += typingIndicatorHTML;
+            scrollToBottom();
+        }
+
+        // Utility functions
+        function scrollToBottom() {
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Enhanced text-to-speech with language support
+        function speakText(buttonElement) {
+            const text = buttonElement.getAttribute('data-message');
+            if (!text) return;
+            
+            if ('speechSynthesis' in window) {
+                speechSynthesis.cancel();
+                
+                let cleanText = text.replace(/<[^>]*>/g, '');
+                const utterance = new SpeechSynthesisUtterance();
+                
+                utterance.lang = languages[currentLanguage].code;
+                utterance.rate = 0.8;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+                
+                const voices = speechSynthesis.getVoices();
+                let selectedVoice = voices.find(v => v.lang.startsWith(currentLanguage)) || voices[0];
+                
+                const femaleVoice = voices.find(v => 
+                    v.lang.startsWith(currentLanguage) && 
+                    (v.name.toLowerCase().includes('female') || 
+                     v.name.toLowerCase().includes('woman') ||
+                     v.name.toLowerCase().includes('zira') ||
+                     v.name.toLowerCase().includes('eva') ||
+                     v.name.toLowerCase().includes('sara') ||
+                     v.name.toLowerCase().includes('samantha') ||
+                     v.name.toLowerCase().includes('karen') ||
+                     v.name.toLowerCase().includes('susan'))
+                );
+                
+                if (femaleVoice) {
+                    selectedVoice = femaleVoice;
+                    cleanText = adaptTextForFemaleVoice(cleanText, currentLanguage);
+                }
+                
+                if (selectedVoice) utterance.voice = selectedVoice;
+                utterance.text = cleanText;
+                
+                utterance.onstart = () => {
+                    const genderNote = selectedVoice && isFemaleVoice(selectedVoice) ? ' (Female voice)' : '';
+                    showNotification(getMsg('playingAudio') + genderNote, 'info');
+                };
+                
+                utterance.onerror = () => {
+                    showNotification(getMsg('ttsNotSupported'), 'error');
+                };
+                
+                speechSynthesis.speak(utterance);
+            } else {
+                showNotification(getMsg('ttsNotSupported'), 'error');
+            }
+        }
+
+        function isFemaleVoice(voice) {
+            const femaleIndicators = ['female', 'woman', 'zira', 'eva', 'sara', 'samantha', 'karen', 'susan', 'anna', 'emma', 'nina', 'alice'];
+            return femaleIndicators.some(indicator => voice.name.toLowerCase().includes(indicator));
+        }
+
+        function adaptTextForFemaleVoice(text, language) {
+            let adaptedText = text;
+            
+            if (language === 'en') {
+                adaptedText = adaptedText
+                    .replace(/\bI am\b/g, "I'm")
+                    .replace(/\bI will\b/g, "I'll")
+                    .replace(/\bI would\b/g, "I'd")
+                    .replace(/\bcannot\b/g, "can't")
+                    .replace(/\bdo not\b/g, "don't")
+                    .replace(/\bdoes not\b/g, "doesn't")
+                    .replace(/\bwould not\b/g, "wouldn't")
+                    .replace(/\bcould not\b/g, "couldn't")
+                    .replace(/\bshould not\b/g, "shouldn't")
+                    .replace(/\bwill not\b/g, "won't")
+                    .replace(/\bthat is\b/g, "that's")
+                    .replace(/\bit is\b/g, "it's")
+                    .replace(/\byou are\b/g, "you're")
+                    .replace(/\bwe are\b/g, "we're")
+                    .replace(/\bthey are\b/g, "they're")
+                    .replace(/\bHowever,\b/g, "But,")
+                    .replace(/\bTherefore,\b/g, "So,")
+                    .replace(/\bFurthermore,\b/g, "Also,")
+                    .replace(/\bMoreover,\b/g, "Plus,")
+                    .replace(/\bIn addition,\b/g, "And,")
+                    .replace(/\bThis legal matter\b/g, "This case")
+                    .replace(/\bThe aforementioned\b/g, "What I mentioned")
+                    .replace(/\bIn accordance with\b/g, "According to")
+                    .replace(/\bIt is recommended\b/g, "I'd recommend")
+                    .replace(/\bIt should be noted\b/g, "Keep in mind")
+                    .replace(/\bIt is important to understand\b/g, "It's important to know");
+                    
+            } else if (language === 'hi') {
+                adaptedText = adaptedText
+                    .replace(/मैं हूँ/g, "मैं हूं")
+                    .replace(/आपका/g, "आपका")
+                    .replace(/कानूनी मामला/g, "यह केस")
+                    .replace(/यह सिफारिश की जाती है/g, "मेरी सलाह है")
+                    .replace(/ध्यान देना चाहिए/g, "याद रखिए");
+                    
+            } else if (language === 'mr') {
+                adaptedText = adaptedText
+                    .replace(/मी आहे/g, "मी आहे")
+                    .replace(/कायदेशीर प्रकरण/g, "हे केस")
+                    .replace(/शिफारस केली जाते/g, "माझा सल्ला आहे")
+                    .replace(/लक्षात घेतले पाहिजे/g, "लक्षात ठेवा");
+            }
+            
+            adaptedText = adaptedText
+                .replace(/\. /g, '. ')
+                .replace(/\, /g, ', ')
+                .replace(/([.!?])\s*([A-Z])/g, '$1 $2');
+            
+            return adaptedText;
+        }
+
+        function copyToClipboard(buttonElement) {
+            const text = buttonElement.getAttribute('data-message');
+            if (!text) return;
+            
+            const cleanText = text.replace(/<[^>]*>/g, '');
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(cleanText).then(() => {
+                    showNotification(getMsg('copySuccess'), 'success');
+                }).catch(() => {
+                    fallbackCopyToClipboard(cleanText);
+                });
+            } else {
+                fallbackCopyToClipboard(cleanText);
+            }
+        }
+        
+        function fallbackCopyToClipboard(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showNotification(getMsg('copySuccess'), 'success');
+            } catch (err) {
+                showNotification(getMsg('copyError'), 'error');
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function rateResponse(messageId, rating) {
+            setTimeout(() => {
+                showNotification(getMsg('thanksFeedback'), 'success');
+            }, 500);
+        }
+
+        // Enhanced language selection
+        document.getElementById('language-select').addEventListener('change', function() {
+            const selectedLang = this.value;
+            currentLanguage = selectedLang;
+            
+            updateWelcomeMessage();
+            
+            if (recognition) {
+                recognition.lang = languages[currentLanguage].code;
+            }
+            
+            const langName = languages[selectedLang].name;
+            showNotification(`Language changed to ${langName}`, 'success');
+        });
+
+        // Enhanced hover effects
+        document.addEventListener('DOMContentLoaded', () => {
+            const floatingIcons = document.querySelectorAll('.floating-icon');
+            floatingIcons.forEach(icon => {
+                icon.addEventListener('mouseenter', () => {
+                    icon.style.filter = 'drop-shadow(0 4px 12px rgba(0, 255, 255, 0.6))';
+                });
+                icon.addEventListener('mouseleave', () => {
+                    icon.style.filter = 'none';
+                });
+            });
+
+            detectLanguage();
+            
+            if ('speechSynthesis' in window) {
+                speechSynthesis.onvoiceschanged = () => {
+                    // Voices loaded
+                };
+            }
+        });
+
+        // Auto-scroll on new messages
+        const observer = new MutationObserver(() => {
+            scrollToBottom();
+        });
+        observer.observe(messageContainer, { childList: true });
+
+        // Enhanced keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case '/':
+                        e.preventDefault();
+                        chatInput.focus();
+                        break;
+                    case 'u':
+                        e.preventDefault();
+                        fileUpload.click();
+                        break;
+                    case 'm':
+                        e.preventDefault();
+                        startVoiceInput();
+                        break;
+                }
+            }
+            
+            if (e.key === 'Escape' && isRecording) {
+                e.preventDefault();
+                stopVoiceInput();
+            }
+        });
+
+        chatInput.focus();
+        
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768) {
+                sidebar.classList.remove('-translate-x-full');
+            }
+        });
+
+        chatForm.addEventListener('submit', (e) => {
+            if (isRecording) {
+                e.preventDefault();
+                showNotification('Please finish voice input first', 'info');
+                return;
+            }
+        });
+
+        window.addEventListener('error', (e) => {
+            if (e.message.includes('speech') || e.message.includes('recognition')) {
+                console.error('Speech recognition error:', e);
+                stopVoiceInput();
+                showNotification(getMsg('voiceError'), 'error');
+            }
+        });
+
+        window.addEventListener('online', () => {
+            showNotification('Connection restored', 'success');
+        });
+
+        window.addEventListener('offline', () => {
+            showNotification('Connection lost - some features may not work', 'error');
+        });
+
+        function initializeTooltips() {
+            const tooltipElements = document.querySelectorAll('[data-tooltip]');
+            tooltipElements.forEach(element => {
+                element.addEventListener('mouseenter', showTooltip);
+                element.addEventListener('mouseleave', hideTooltip);
+            });
+        }
+
+        function showTooltip(e) {
+            // Tooltip handled by CSS
+        }
+
+        function hideTooltip(e) {
+            // Tooltip handled by CSS
+        }
+
+        let scrollTimeout;
+        chatWindow.addEventListener('scroll', () => {
+            if (scrollTimeout) clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                // Handle scroll-based UI updates
+            }, 100);
+        });
+
+        function initializeApp() {
+            console.log('LexiBots AI Legal Assistant initialized');
+            console.log('Available languages:', Object.keys(languages));
+            console.log('Current language:', currentLanguage);
+            
+            initializeTooltips();
+            detectLanguage();
+            
+            if ('speechSynthesis' in window) {
+                speechSynthesis.onvoiceschanged = () => {
+                    // Voices loaded
+                };
+            }
+            
+            setTimeout(() => chatInput.focus(), 100);
+        }
+
+        initializeApp();
+    </script>
+
+    <!-- Add CSRF token for Django -->
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+</body>
+</html>
